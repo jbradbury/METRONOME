@@ -5,42 +5,33 @@ Created on Thu Oct 26 15:35:14 2017
 @author: James Bradbury
 """
 import argparse
-from . import __version__
+from enzymeAssignment import orthoMCL
        
 def main():
-    print("executing METRONOME version %s." % __version__)
+    print("executing METRONOME.")
     
     parser = argparse.ArgumentParser(description='Pyhton package for', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     
-    subparsers = parser.add_subparsers(dest='step')
+    # Model name
+    parser.add_argument('-n', '--name',
+                          type=str, required=True,
+                          help="Name for reconstruction.")
     
-    parser_ea = subparsers.add_parser('enzyme-assignment', help='Assign enzymes to input sequence')
-    parser_dm = subparsers.add_parser('data-mining', help='mine enzymatic reactions')
-    parser_m = subparsers.add_parser('merging', help='merge the reactions from the different data mining sources using MetaNetX')
+    # Enzyme assignment class directory
+    parser.add_argument('-e', '--enzymeAssignment',
+                        type=str, default= '/enzymeAssingment',
+                        help="Path to enzyme assignment class directory")
 
-    ##################################
-    # Enzyme Assignment
-    ##################################
-    
-    ##################################
-    # Data mining
-    ##################################
-    
-    ##################################
-    # Merging
-    ##################################
-    
-    
     args = parser.parse_args()
-    
     print(args)
     
-    if args.step == "enzyme-assignment":
-        print('ENZMYE ASSIGNMENT')
-    elif args.step == "data-mining":
-        print('DATA MINING')
-    elif args.step == "merging":
-        print('MERGING')
+    ##### ENZYME ASSIGNMENT #####
+    # dynamic class loading
+    print(args.enzymeAssignment)
+    
+    #o = orthoMCL.OrthoMCL()
+    #o.test()
+    
         
 if __name__ == '__main__':
-    main()
+    main() 
