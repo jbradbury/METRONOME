@@ -164,7 +164,7 @@ def extract_metabolite_formula(compound_kegg_entry):
     try:
         formula = compound_kegg_entry['FORMULA']
     except KeyError:
-        formula = 'NA'
+        formula = ['NA']
     return formula
 
 
@@ -192,7 +192,7 @@ def extract_reaction_name(r, reaction_kegg_entry):
     try:
         name = reaction_kegg_entry['NAME']
     except KeyError:
-        name = r
+        name = [r]
     return name
 
 

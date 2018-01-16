@@ -194,7 +194,7 @@ class ReactionDict(collections.MutableMapping):
         :return:
         """
         try:
-            assert bool(pathway) and isinstance(pathway, list) and all(isinstance(p, str) for p in pathway)
+            isinstance(pathway, list) and all(isinstance(p, str) for p in pathway)
             return pathway
         except AssertionError:
             print('Reaction Pathway must be of type list, which can only contain strings')
@@ -221,7 +221,7 @@ class ReactionDict(collections.MutableMapping):
         :return:
         """
         try:
-            assert bool(db_links) and isinstance(db_links, dict) and all(
+            isinstance(db_links, dict) and all(
                 isinstance(key, str) for key in db_links.keys()) and all(
                 isinstance(value, str) for value in db_links.values())
             return db_links
@@ -308,7 +308,7 @@ class MetaboliteDict(collections.MutableMapping):
         :return:
         """
         try:
-            assert bool(charge) and isinstance(charge, str)
+            isinstance(charge, str)
             return charge
         except AssertionError:
             print("Metabolite Charge must be of type str")
@@ -322,7 +322,7 @@ class MetaboliteDict(collections.MutableMapping):
         :return:
         """
         try:
-            assert bool(inchi) and isinstance(inchi, str)
+            isinstance(inchi, str)
             return inchi
         except AssertionError:
             print("Metabolite Inchi must be of type str")
@@ -336,7 +336,7 @@ class MetaboliteDict(collections.MutableMapping):
         :return:
         """
         try:
-            assert bool(smiles) and isinstance(smiles, str)
+            isinstance(smiles, str)
             return smiles
         except AssertionError:
             print("Metabolite Smiles must be of type str")
@@ -350,7 +350,7 @@ class MetaboliteDict(collections.MutableMapping):
         :return:
         """
         try:
-            assert bool(formula) and isinstance(formula, list) and all(isinstance(f, str) for f in formula)
+            isinstance(formula, list) and all(isinstance(f, str) for f in formula)
             return formula
         except AssertionError:
             print('Metabolite Formula must be of type list, which can only contain strings')
@@ -363,7 +363,7 @@ class MetaboliteDict(collections.MutableMapping):
         :return:
         """
         try:
-            assert bool(db_links) and isinstance(db_links, dict) and all(
+            isinstance(db_links, dict) and all(
                 isinstance(key, str) for key in db_links.keys()) and all(
                 isinstance(value, str) for value in db_links.values())
             return db_links
