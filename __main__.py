@@ -26,7 +26,7 @@ def main():
     database_extractor_classes = tools.load_classes('databaseExtraction', DatabaseExtraction, ea_class.assigned_enzymes)
     for database_extractor in database_extractor_classes:
         # Extract reactions and metabolites for the selected database and build a SBML model
-        database_extractor.extract_reactions
+        database_extractor.extract_reactions()
         sbml.build_sbml(database_extractor, args.outPath, args.name)
 
     # ##### MERGE SBML MODELS ###### #
