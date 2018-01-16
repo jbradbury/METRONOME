@@ -24,10 +24,10 @@ def main():
     # ###### DATABASE EXTRACTION  ### #
     # load database extractors
     database_extractor_classes = tools.load_classes('databaseExtraction', DatabaseExtraction, ea_class.assigned_enzymes)
-    for database_extractor_class in database_extractor_classes:
+    for database_extractor in database_extractor_classes:
         # Extract reactions and metabolites for the selected database and build a SBML model
-        database_extraction = database_extractor_class.extract_reactions
-        sbml.build_sbml(database_extraction.reactions, database_extraction.metabolites, args.outPath, args.name)
+        database_extractor.extract_reactions
+        sbml.build_sbml(database_extractor, args.outPath, args.name)
 
     # ##### MERGE SBML MODELS ###### #
     print()

@@ -39,7 +39,6 @@ class KeggExtraction(databaseExtraction.DatabaseExtraction):
             print("\t\tCompound %s already extracted from KEGG" % metabolite_id)
             return self.metabolites[metabolite_id]
 
-    @property
     def extract_reactions(self):
         """
 
