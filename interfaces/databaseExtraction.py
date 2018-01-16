@@ -1,7 +1,6 @@
 import abc
 import collections
 import sys
-import enzymeAssignment
 
 from interfaces.enzymeAssignment import AssignedEnzymeDict
 
@@ -35,6 +34,14 @@ class DatabaseExtraction(abc.ABC):
         :return:
         """
         return self._assigned_enzymes
+
+    @abc.abstractmethod
+    def database_name(self):
+        """
+        Database name. This is used by the SBML module
+        :return:
+        """
+        pass
 
     @abc.abstractmethod
     def extract_reactions(self):

@@ -14,6 +14,8 @@ class KeggExtraction(databaseExtraction.DatabaseExtraction):
     The module extends the databaseExtraction interface
     It works by making use of the KEGG REST services
     """
+    def database_name(self):
+        return "KEGG"
 
     def extract_metabolite(self, metabolite_id):
         """
