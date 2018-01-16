@@ -357,7 +357,7 @@ class MetaboliteDict(collections.MutableMapping):
         :return:
         """
         try:
-            isinstance(formula, list) and all(isinstance(f, str) for f in formula)
+            isinstance(formula, str)
             return formula
         except AssertionError:
             print('Metabolite Formula must be of type list, which can only contain strings')

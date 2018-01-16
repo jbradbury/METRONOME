@@ -163,9 +163,9 @@ def extract_metabolite_formula(compound_kegg_entry):
     :return:
     """
     try:
-        formula = compound_kegg_entry['FORMULA']
+        formula = compound_kegg_entry['FORMULA'][0]
     except KeyError:
-        formula = ['NA']
+        formula = 'NA'
     return formula
 
 
