@@ -26,9 +26,15 @@ def reactions(database_extractor, model):
         sbml_reaction = model.createReaction()
         sbml_reaction.setId(reaction.__getitem__('ID'))
         sbml_reaction.setName(reaction.__getitem__('NAME')[0])
-        # Substrates
-        # Products
-        # sbml_reaction.setReversible(reaction.__getitem__['REVERSIBLE'])
+        for substrate in reaction.__getitem__('SUBSTRATES'):
+            species_ref = model.createReactant()
+            species_ref.setSpecies(substrate)
+            species_ref.setStoichiometry(reaction.__getitem__('STOICHIOMETRY')[substrate])
+        for product in reaction.__getitem__('PRODUCTS'):
+            species_ref = model.createProduct()
+            species_ref.setSpecies(product)
+            species_ref.setStoichiometry(reaction.__getitem__('STOICHIOMETRY')[product])
+        sbml_reaction.setReversible(reaction.__getitem__('REVERSIBLE'))
         sbml_reaction.setNotes(reaction_notes_string(reaction))
 
     print()

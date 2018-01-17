@@ -64,9 +64,10 @@ class KeggExtraction(databaseExtraction.DatabaseExtraction):
 
                     substrates = self.extract_reaction_substrates(reaction_kegg_entry, r)
                     products = self.extract_reaction_products(reaction_kegg_entry, r)
+                    stoichiometry = self.get_stoichiometry(substrates, products, reaction_kegg_entry)
 
                     reaction = databaseExtraction.ReactionDict(r, name, substrates, products, reversible, ec_number,
-                                                               pathway, self.enzymes[ec_number], db_links)
+                                                               pathway, self.enzymes[ec_number], db_links, stoichiometry)
                     self.reactions[r] = reaction
 
                 else:
@@ -107,6 +108,31 @@ class KeggExtraction(databaseExtraction.DatabaseExtraction):
             products[product] = self.extract_metabolite(product)
             print("\t\t\tAdding %s as substrate to %s" % (product, reaction_id))
         return products
+
+    def get_stoichiometry(self, substrates, products, reaction_kegg_entry):
+        stoichiometry = {}
+        equation = reaction_kegg_entry['EQUATION'][0].replace(" ", "")
+        for substrate in substrates:
+            index = equation.index(substrate)
+            if not index == 0:
+                if equation[index-1].isdigit():
+                    stoichiometry[substrate] = int(equation[index-1])
+                else:
+                    stoichiometry[substrate] = 1
+            else:
+                stoichiometry[substrate] = 1
+
+        for product in products:
+            index = equation.index(product)
+            if not index == 0:
+                if equation[index-1].isdigit():
+                    stoichiometry[product] = int(equation[index-1])
+                else:
+                    stoichiometry[product] = 1
+            else:
+                stoichiometry[product] = 1
+
+        return stoichiometry
 
 
 def rest2dict(request):
