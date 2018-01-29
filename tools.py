@@ -20,7 +20,7 @@ def load_classes(path, instance):
     return classes
 
 
-def load_classes(path, instance, argument):
+def load_classes(path, instance, **kwargs):
     classes = []
 
     for file in os.listdir(os.path.dirname(__file__) + '/' + path):
@@ -30,7 +30,7 @@ def load_classes(path, instance, argument):
 
             for class_member in class_members:
                 the_class = getattr(file_module, class_member[0])
-                the_instance = the_class(argument)
+                the_instance = the_class(**kwargs)
                 if isinstance(the_instance, instance):
                     classes.append(the_instance)
 
