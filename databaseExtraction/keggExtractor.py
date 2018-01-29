@@ -29,7 +29,7 @@ class KeggExtraction(databaseExtraction.DatabaseExtraction):
 
             name = extract_metabolite_name(compound_kegg_entry, metabolite_id)
             formula = extract_metabolite_formula(compound_kegg_entry)
-            db_links = extract_metabolite_dblinks(compound_kegg_entry)
+            db_links = extract_metabolite_dblinks(compound_kegg_entry, metabolite_id)
 
             metabolite = databaseExtraction.MetaboliteDict(metabolite_id, name, formula, db_links)
             self.metabolites[metabolite_id] = metabolite
@@ -59,15 +59,14 @@ class KeggExtraction(databaseExtraction.DatabaseExtraction):
 
                     name = extract_reaction_name(r, reaction_kegg_entry)
                     reversible = extract_reaction_reversibility(reaction_kegg_entry)
-                    pathway = extract_reaction_pathway(reaction_kegg_entry)
-                    db_links = extract_reaction_dblinks(reaction_kegg_entry)
+                    db_links = extract_reaction_dblinks(reaction_kegg_entry, r)
 
                     substrates = self.extract_reaction_substrates(reaction_kegg_entry, r)
                     products = self.extract_reaction_products(reaction_kegg_entry, r)
                     stoichiometry = self.get_stoichiometry(substrates, products, reaction_kegg_entry)
 
                     reaction = databaseExtraction.ReactionDict(r, name, substrates, products, reversible, ec_number,
-                                                               pathway, self.enzymes[ec_number], db_links, stoichiometry)
+                                                               self.enzymes[ec_number], db_links, stoichiometry)
                     self.reactions[r] = reaction
 
                 else:
@@ -167,14 +166,14 @@ def get_entry(r):
     return e
 
 
-def extract_metabolite_dblinks(compound_kegg_entry):
+def extract_metabolite_dblinks(compound_kegg_entry, m):
     """
 
     :param compound_kegg_entry:
     :return:
     """
     try:
-        db_links = {}
+        db_links = {'KEGG': m}
         for l in compound_kegg_entry['DBLINKS']:
             db_links[l.split(': ')[0]] = l.split(': ')[1]
     except KeyError:
@@ -223,32 +222,19 @@ def extract_reaction_name(r, reaction_kegg_entry):
     return name
 
 
-def extract_reaction_dblinks(reaction_kegg_entry):
+def extract_reaction_dblinks(reaction_kegg_entry, r):
     """
 
     :param reaction_kegg_entry:
     :return:
     """
     try:
-        db_links = {}
+        db_links = {'KEGG': r}
         for l in reaction_kegg_entry['DBLINKS']:
             db_links[l.split(': ')[0]] = l.split(': ')[1]
     except KeyError:
         db_links = {}
     return db_links
-
-
-def extract_reaction_pathway(reaction_kegg_entry):
-    """
-
-    :param reaction_kegg_entry:
-    :return:
-    """
-    try:
-        pathway = reaction_kegg_entry['PATHWAY']
-    except KeyError:
-        pathway = []
-    return pathway
 
 
 def extract_reaction_reversibility(reaction_kegg_entry):

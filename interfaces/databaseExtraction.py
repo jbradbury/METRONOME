@@ -83,12 +83,11 @@ class ReactionDict(collections.MutableMapping):
         - Substrate/product metabolites (w/ stoiciometry)
         - reversibility
         - Enzyme number(s)
-        - Pathway
         - Gene associations
         - Database references
     """
 
-    def __init__(self, reaction_id, name, substrates, products, reversible, ec_number, pathway, gene_ids, db_links,
+    def __init__(self, reaction_id, name, substrates, products, reversible, ec_number, gene_ids, db_links,
                  stoichiometry):
         self.store = dict()
         self.__setitem__('ID', self.reaction_id(reaction_id))
@@ -97,7 +96,6 @@ class ReactionDict(collections.MutableMapping):
         self.__setitem__('PRODUCTS', self.metabolites_check(products))
         self.__setitem__('REVERSIBLE', self.reversible(reversible))
         self.__setitem__('ENZYME', self.enzymes([ec_number]))
-        self.__setitem__('PATHWAY', self.pathway(pathway))
         self.__setitem__('GENE_ASSOCIATION', self.gene_ids(gene_ids))
         self.__setitem__('DB_LINKS', self.db_links(db_links))
         self.__setitem__('STOICHIOMETRY', self.stoichiometry(stoichiometry))
@@ -193,20 +191,6 @@ class ReactionDict(collections.MutableMapping):
             return enzymes
         except AssertionError:
             print('Reaction Enzymes must be of type list, which can only contain strings')
-            sys.exit()
-
-    @staticmethod
-    def pathway(pathway):
-        """
-
-        :param pathway:
-        :return:
-        """
-        try:
-            isinstance(pathway, list) and all(isinstance(p, str) for p in pathway)
-            return pathway
-        except AssertionError:
-            print('Reaction Pathway must be of type list, which can only contain strings')
             sys.exit()
 
     @staticmethod

@@ -1,5 +1,14 @@
 import libsbml
+import time
 
+def load_sbml(path):
+    print('Importing SBML model from %s' % path)
+    reader = libsbml.SBMLReader()
+    start = time.time() * 1000
+    document = reader.readSBMLFromFile(path)
+    stop = time.time() * 1000
+
+    errors = document.getNumErrors(libsbml.LIBSBML_SEV_ERROR)
 
 def build_sbml(database_extractor, path, name):
 
@@ -36,8 +45,6 @@ def reactions(database_extractor, model):
             species_ref.setStoichiometry(reaction.__getitem__('STOICHIOMETRY')[product])
         sbml_reaction.setReversible(reaction.__getitem__('REVERSIBLE'))
         sbml_reaction.setNotes(reaction_notes_string(reaction))
-
-    print()
 
 
 def species(database_extractor, model):
@@ -80,7 +87,6 @@ def metabolite_notes_string(metabolite):
 def reaction_notes_string(reaction):
     notes_string = '<body xmlns="http://www.w3.org/1999/xhtml">\n'
     notes_string += '\t<p>ENZYME: %s</p>\n' % ', '.join(reaction.__getitem__('ENZYME'))
-    notes_string += '\t<p>PATHWAY: %s</p>\n' % ', '.join(reaction.__getitem__('PATHWAY'))
     notes_string += '\t<p>GENE_ASSOCIATION: %s</p>\n' % ', '.join(reaction.__getitem__('GENE_ASSOCIATION'))
     for db in reaction.__getitem__('DB_LINKS').keys():
         notes_string += '\t<p>%s: %s</p>\n' % (db, reaction.__getitem__('DB_LINKS')[db])
