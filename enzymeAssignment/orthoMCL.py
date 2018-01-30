@@ -8,9 +8,6 @@ from interfaces import enzymeAssignment
 from interfaces.enzymeAssignment import ec_pattern
 
 
-# input_path = 'C:/Users/bradburj/PhD/NBAF/orthoMCL/orthologGroups'
-
-
 class OrthoMCL(enzymeAssignment.EnzymeAssignment):
     """
     Enzyme Assignment module to assign enzymes based on the output files from OrthoMCL

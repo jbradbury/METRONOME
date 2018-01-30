@@ -59,6 +59,54 @@ class DatabaseExtraction(abc.ABC):
         """
         pass
 
+    @abc.abstractmethod
+    def extract_metabolite_dblinks(self, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def extract_metabolite_formula(self, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def extract_metabolite_name(self, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def extract_metabolite_charge(self, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def extract_metabolite_inchi(self, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def extract_metabolite_smiles(self, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def extract_metabolite_compartment(self, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def extract_reaction_substrates(self, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def extract_reaction_products(self, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def extract_reaction_name(self, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def extract_reaction_dblinks(self, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def extract_reaction_reversibility(self, **kwargs):
+        pass
+
     @staticmethod
     def assigned_enzymes(assigned_enzymes):
         """
