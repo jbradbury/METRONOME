@@ -11,5 +11,8 @@ class SBMLExtraction(databaseExtraction.DatabaseExtraction):
         self._reactions = {}
         self._metabolites = {}
         self._assigned_enzymes = self.assigned_enzymes(kwargs['enzymes'])
-        self._sbml_file = sbml.load_sbml(kwargs['sbml_path'])
+        self._sbml_file = sbml.load_sbml(kwargs['sbml_file'])
 
+    @property
+    def sbml_file(self):
+        return self._sbml_file

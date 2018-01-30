@@ -1,6 +1,7 @@
 import libsbml
 import time
 
+
 def load_sbml(path):
     print('Importing SBML model from %s' % path)
     reader = libsbml.SBMLReader()
@@ -9,9 +10,10 @@ def load_sbml(path):
     stop = time.time() * 1000
 
     errors = document.getNumErrors(libsbml.LIBSBML_SEV_ERROR)
+    return document
+
 
 def build_sbml(database_extractor, path, name):
-
     document = libsbml.SBMLDocument(3, 2)
     model = document.createModel()
     model.setId(name + "_" + database_extractor.database_name())

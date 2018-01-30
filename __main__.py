@@ -25,20 +25,24 @@ def main():
 
     # ###### DATABASE EXTRACTION  ### #
     # load SBML extractions
-    sbml_extractor_classes = tools.load_classes('sbmlExtraction', SBMLExtraction, enzymes=ea_class.assigned_enzymes, sbml_path=args.sbmlFolder)
+    sbml_extractor_classes = []
+    for sbml_file in args.sbmlFiles:
+        sbml_extractor_classes.extend(
+            tools.load_classes('sbmlExtraction', SBMLExtraction, enzymes=ea_class.assigned_enzymes,
+                               sbml_file=sbml_file))
+
     for sbml_extractor in sbml_extractor_classes:
         # extract reactions and metabolites from the selected sbml file and build a SBML model
         sbml_extractor.extract_reactions()
         sbml.build_sbml(sbml_extractor, args.outPath, args.name)
 
-
     # load database extractors
-    database_extractor_classes = tools.load_classes('databaseExtraction', DatabaseExtraction, enzymes=ea_class.assigned_enzymes)
+    database_extractor_classes = tools.load_classes('databaseExtraction', DatabaseExtraction,
+                                                    enzymes=ea_class.assigned_enzymes)
     for database_extractor in database_extractor_classes:
         # Extract reactions and metabolites for the selected database and build a SBML model
         database_extractor.extract_reactions()
         sbml.build_sbml(database_extractor, args.outPath, args.name)
-
 
     # ##### MERGE SBML MODELS ###### #
     print()
@@ -64,13 +68,9 @@ def parse_arguments():
                         type=str, required=False,
                         help="Path to input file for selected enzyme assignment module (ea argument)")
     # sbml folder path
-    parser.add_argument('-f', '--sbmlFolder',
-                        type=str, required=False,
-                        help="Path to folder containing SBML files to extract reactions and metabolites from")
-    # sbml config file path
-    parser.add_argument('-c', '--sbmlNotesConfig',
-                        type=str, required=False, default=os.path.dirname(__file__)+'/sbmlNotesConfig.csv',
-                        help="Path to file containing sbml notes tags for sbml extraction")
+    parser.add_argument('-f', '--sbmlFiles',
+                        type=str, nargs='+', required=False,
+                        help="Paths of SBML files to extract reactions and metabolites from")
     args = parser.parse_args()
     return args
 
