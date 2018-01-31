@@ -5,19 +5,22 @@ Created on Thu Oct 26 15:35:14 2017
 @author: James Bradbury
 """
 import argparse
-import os
 import tools
 from sbml import sbml
 from interfaces.enzymeAssignment import EnzymeAssignment
 from interfaces.databaseExtraction import DatabaseExtraction
 from interfaces.sbmlExtraction import SBMLExtraction
+from network_merging import merge
 
 
 def main():
     print("executing METRONOME.")
-
     args = parse_arguments()
     print(args)
+
+
+    merge.merge_networks(args.outPath)
+
 
     # ###### ENZYME ASSIGNMENT ###### #
     ea_class = tools.load_class(args.enzymeAssignment, EnzymeAssignment)
@@ -44,6 +47,7 @@ def main():
         sbml.build_sbml(sbml_extractor, args.outPath, args.name + '_' + sbml_extractor.sbml_file.getModel().getId())
 
     # ##### MERGE SBML MODELS ###### #
+
     print()
 
 

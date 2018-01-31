@@ -249,7 +249,6 @@ class ReactionDict(collections.MutableMapping):
     def gene_ids(gene_ids):
         """
 
-        :param name:
         :return:
         """
         try:
