@@ -164,7 +164,7 @@ class ReactionDict(collections.MutableMapping):
     def __iter__(self):
         return iter(self.store)
 
-    def append_enzyme(self, ec_number):
+    def dbappend_enzyme(self, ec_number):
         self.__getitem__('ENZYME').append(ec_number)
 
     def append_gene(self, gene_id):
@@ -225,7 +225,7 @@ class ReactionDict(collections.MutableMapping):
         :return:
         """
         try:
-            assert bool(reversible) and isinstance(reversible, bool)
+            assert isinstance(reversible, bool)
             return reversible
         except AssertionError:
             print('Reaction reversibility must be of type bool')

@@ -34,7 +34,7 @@ def main():
     for sbml_extractor in sbml_extractor_classes:
         # extract reactions and metabolites from the selected sbml file and build a SBML model
         sbml_extractor.extract_reactions()
-        sbml.build_sbml(sbml_extractor, args.outPath, args.name)
+        sbml.build_sbml(sbml_extractor, args.outPath, args.name + '_' + sbml_extractor.sbml_file.getModel().getId())
 
     # load database extractors
     database_extractor_classes = tools.load_classes('databaseExtraction', DatabaseExtraction,
