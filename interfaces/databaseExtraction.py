@@ -6,10 +6,10 @@ from interfaces.enzymeAssignment import AssignedEnzymeDict
 
 
 class DatabaseExtraction(abc.ABC):
-    def __init__(self, assigned_enzymes):
+    def __init__(self, **kwargs):
         self._reactions = {}
         self._metabolites = {}
-        self._assigned_enzymes = self.assigned_enzymes(assigned_enzymes)
+        self._assigned_enzymes = self.assigned_enzymes(kwargs['enzymes'])
 
     @property
     def reactions(self):
@@ -164,7 +164,7 @@ class ReactionDict(collections.MutableMapping):
     def __iter__(self):
         return iter(self.store)
 
-    def dbappend_enzyme(self, ec_number):
+    def append_enzyme(self, ec_number):
         self.__getitem__('ENZYME').append(ec_number)
 
     def append_gene(self, gene_id):

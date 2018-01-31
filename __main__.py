@@ -24,6 +24,14 @@ def main():
     ea_class.assign_enzymes(args.enzymeAssignmentFile)
 
     # ###### DATABASE EXTRACTION  ### #
+    # load database extractors
+    database_extractor_classes = tools.load_classes('databaseExtraction', DatabaseExtraction,
+                                                    enzymes=ea_class.assigned_enzymes)
+    for database_extractor in database_extractor_classes:
+        # Extract reactions and metabolites for the selected database and build a SBML model
+        database_extractor.extract_reactions()
+        sbml.build_sbml(database_extractor, args.outPath, args.name)
+
     # load SBML extractions
     sbml_extractor_classes = []
     for sbml_file in args.sbmlFiles:
@@ -32,17 +40,8 @@ def main():
                                sbml_file=sbml_file))
 
     for sbml_extractor in sbml_extractor_classes:
-        # extract reactions and metabolites from the selected sbml file and build a SBML model
         sbml_extractor.extract_reactions()
         sbml.build_sbml(sbml_extractor, args.outPath, args.name + '_' + sbml_extractor.sbml_file.getModel().getId())
-
-    # load database extractors
-    database_extractor_classes = tools.load_classes('databaseExtraction', DatabaseExtraction,
-                                                    enzymes=ea_class.assigned_enzymes)
-    for database_extractor in database_extractor_classes:
-        # Extract reactions and metabolites for the selected database and build a SBML model
-        database_extractor.extract_reactions()
-        sbml.build_sbml(database_extractor, args.outPath, args.name)
 
     # ##### MERGE SBML MODELS ###### #
     print()
