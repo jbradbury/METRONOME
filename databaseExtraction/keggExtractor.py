@@ -153,7 +153,7 @@ class KeggExtraction(databaseExtraction.DatabaseExtraction):
                     substrates = self.extract_reaction_substrates(reaction_kegg_entry=reaction_kegg_entry,
                                                                   reaction_id=r)
                     products = self.extract_reaction_products(reaction_kegg_entry=reaction_kegg_entry, reaction_id=r)
-                    stoichiometry = self.get_stoichiometry(substrates, products, reaction_kegg_entry)
+                    stoichiometry = self.extract_reaction_stoichiometry(substrates=substrates, products=products, reaction_kegg_entry=reaction_kegg_entry)
 
                     reaction = databaseExtraction.ReactionDict(r, name, substrates, products, reversible, ec_number,
                                                                self.enzymes[ec_number], db_links, stoichiometry)
@@ -193,11 +193,10 @@ class KeggExtraction(databaseExtraction.DatabaseExtraction):
             print("\t\t\tAdding %s as substrate to %s" % (product, kwargs['reaction_id']))
         return products
 
-    @staticmethod
-    def get_stoichiometry(substrates, products, reaction_kegg_entry):
+    def extract_reaction_stoichiometry(self, **kwargs):
         stoichiometry = {}
-        equation = reaction_kegg_entry['EQUATION'][0].replace(" ", "")
-        for substrate in substrates:
+        equation = kwargs['reaction_kegg_entry']['EQUATION'][0].replace(" ", "")
+        for substrate in kwargs['substrates']:
             index = equation.index(substrate)
             if not index == 0:
                 if equation[index - 1].isdigit():
@@ -207,7 +206,7 @@ class KeggExtraction(databaseExtraction.DatabaseExtraction):
             else:
                 stoichiometry[substrate] = 1
 
-        for product in products:
+        for product in kwargs['products']:
             index = equation.index(product)
             if not index == 0:
                 if equation[index - 1].isdigit():

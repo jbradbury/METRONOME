@@ -107,6 +107,10 @@ class DatabaseExtraction(abc.ABC):
     def extract_reaction_reversibility(self, **kwargs):
         pass
 
+    @abc.abstractmethod
+    def extract_reaction_stoichiometry(selfself, **kwargs):
+        pass
+
     @staticmethod
     def assigned_enzymes(assigned_enzymes):
         """
