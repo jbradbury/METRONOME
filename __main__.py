@@ -18,13 +18,11 @@ def main():
     args = parse_arguments()
     print(args)
 
-
-    merge.merge_networks(args.outPath)
-
-
     # ###### ENZYME ASSIGNMENT ###### #
     ea_class = tools.load_class(args.enzymeAssignment, EnzymeAssignment)
     ea_class.assign_enzymes(args.enzymeAssignmentFile)
+
+    merge.NetworkMerger(path=args.outPath, enzymes=ea_class.assigned_enzymes)
 
     # ###### DATABASE EXTRACTION  ### #
     # load database extractors
@@ -32,7 +30,7 @@ def main():
                                                     enzymes=ea_class.assigned_enzymes)
     for database_extractor in database_extractor_classes:
         # Extract reactions and metabolites for the selected database and build a SBML model
-        database_extractor.extract_reactions()
+        database_extractor.get_reactions()
         sbml.build_sbml(database_extractor, args.outPath, args.name)
 
     # load SBML extractions
@@ -43,10 +41,11 @@ def main():
                                sbml_file=sbml_file))
 
     for sbml_extractor in sbml_extractor_classes:
-        sbml_extractor.extract_reactions()
+        sbml_extractor.get_reactions()
         sbml.build_sbml(sbml_extractor, args.outPath, args.name + '_' + sbml_extractor.sbml_file.getModel().getId())
 
     # ##### MERGE SBML MODELS ###### #
+    merge.NetworkMerger(args.outPath)
 
     print()
 

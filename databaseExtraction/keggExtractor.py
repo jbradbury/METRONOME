@@ -24,19 +24,19 @@ class KeggExtraction(databaseExtraction.DatabaseExtraction):
         """
         return "KEGG"
 
-    def extract_metabolite_compartment(self, **kwargs):
+    def metabolite_compartment(self, **kwargs):
         pass
 
-    def extract_metabolite_inchi(self, **kwargs):
+    def metabolite_inchi(self, **kwargs):
         pass
 
-    def extract_metabolite_charge(self, **kwargs):
+    def metabolite_charge(self, **kwargs):
         pass
 
-    def extract_metabolite_smiles(self, **kwargs):
+    def metabolite_smiles(self, **kwargs):
         pass
 
-    def extract_metabolite_dblinks(self, **kwargs):
+    def metabolite_dblinks(self, **kwargs):
         """
 
         :return:
@@ -49,7 +49,7 @@ class KeggExtraction(databaseExtraction.DatabaseExtraction):
             db_links = {}
         return db_links
 
-    def extract_metabolite_formula(self, **kwargs):
+    def metabolite_formula(self, **kwargs):
         """
 
         :return:
@@ -60,7 +60,7 @@ class KeggExtraction(databaseExtraction.DatabaseExtraction):
             formula = 'NA'
         return formula
 
-    def extract_metabolite_name(self, **kwargs):
+    def metabolite_name(self, **kwargs):
         """
 
         :return:
@@ -71,7 +71,7 @@ class KeggExtraction(databaseExtraction.DatabaseExtraction):
             name = kwargs['metabolite_id']
         return name
 
-    def extract_reaction_name(self, **kwargs):
+    def reaction_name(self, **kwargs):
         """
 
         :return:
@@ -82,7 +82,7 @@ class KeggExtraction(databaseExtraction.DatabaseExtraction):
             name = [kwargs['reaction_id']]
         return name
 
-    def extract_reaction_dblinks(self, **kwargs):
+    def reaction_dblinks(self, **kwargs):
         """
 
         :return:
@@ -95,7 +95,7 @@ class KeggExtraction(databaseExtraction.DatabaseExtraction):
             db_links = {}
         return db_links
 
-    def extract_reaction_reversibility(self, **kwargs):
+    def reaction_reversibility(self, **kwargs):
         """
 
         :return:
@@ -116,9 +116,9 @@ class KeggExtraction(databaseExtraction.DatabaseExtraction):
             print("\t\tCalling KEGG REST service: %s" % metabolite_id)
             compound_kegg_entry = get_entry(rest2dict(requests.get(kegg_url % metabolite_id)))
 
-            name = self.extract_metabolite_name(compound_kegg_entry=compound_kegg_entry, metabolite_id=metabolite_id)
-            formula = self.extract_metabolite_formula(compound_kegg_entry=compound_kegg_entry)
-            db_links = self.extract_metabolite_dblinks(compound_kegg_entry=compound_kegg_entry, metabolite_id=metabolite_id)
+            name = self.metabolite_name(compound_kegg_entry=compound_kegg_entry, metabolite_id=metabolite_id)
+            formula = self.metabolite_formula(compound_kegg_entry=compound_kegg_entry)
+            db_links = self.metabolite_dblinks(compound_kegg_entry=compound_kegg_entry, metabolite_id=metabolite_id)
 
             metabolite = databaseExtraction.MetaboliteDict(metabolite_id, name, formula, db_links)
             self.metabolites[metabolite_id] = metabolite
@@ -128,7 +128,7 @@ class KeggExtraction(databaseExtraction.DatabaseExtraction):
             print("\t\tCompound %s already extracted from KEGG" % metabolite_id)
             return self.metabolites[metabolite_id]
 
-    def extract_reactions(self):
+    def get_reactions(self):
         """
 
         :return:
@@ -146,14 +146,14 @@ class KeggExtraction(databaseExtraction.DatabaseExtraction):
                     print("\tCalling KEGG REST service: %s" % r)
                     reaction_kegg_entry = get_entry(rest2dict(requests.get(kegg_url % r)))
 
-                    name = self.extract_reaction_name(reaction_id=r, reaction_kegg_entry=reaction_kegg_entry)
-                    reversible = self.extract_reaction_reversibility(reaction_kegg_entry=reaction_kegg_entry)
-                    db_links = self.extract_reaction_dblinks(reaction_kegg_entry=reaction_kegg_entry, reaction_id=r)
+                    name = self.reaction_name(reaction_id=r, reaction_kegg_entry=reaction_kegg_entry)
+                    reversible = self.reaction_reversibility(reaction_kegg_entry=reaction_kegg_entry)
+                    db_links = self.reaction_dblinks(reaction_kegg_entry=reaction_kegg_entry, reaction_id=r)
 
-                    substrates = self.extract_reaction_substrates(reaction_kegg_entry=reaction_kegg_entry,
-                                                                  reaction_id=r)
-                    products = self.extract_reaction_products(reaction_kegg_entry=reaction_kegg_entry, reaction_id=r)
-                    stoichiometry = self.extract_reaction_stoichiometry(substrates=substrates, products=products, reaction_kegg_entry=reaction_kegg_entry)
+                    substrates = self.reaction_substrates(reaction_kegg_entry=reaction_kegg_entry,
+                                                          reaction_id=r)
+                    products = self.reaction_products(reaction_kegg_entry=reaction_kegg_entry, reaction_id=r)
+                    stoichiometry = self.reaction_stoichiometry(substrates=substrates, products=products, reaction_kegg_entry=reaction_kegg_entry)
 
                     reaction = databaseExtraction.ReactionDict(r, name, substrates, products, reversible, ec_number,
                                                                self.enzymes[ec_number], db_links, stoichiometry)
@@ -165,7 +165,7 @@ class KeggExtraction(databaseExtraction.DatabaseExtraction):
                     reaction.append_enzyme(ec_number)
                     reaction.append_gene(self.enzymes[ec_number])
 
-    def extract_reaction_substrates(self, **kwargs):
+    def reaction_substrates(self, **kwargs):
         """
 
         :return:
@@ -179,7 +179,7 @@ class KeggExtraction(databaseExtraction.DatabaseExtraction):
             print("\t\t\tAdding %s as substrate to %s" % (substrate, kwargs['reaction_id']))
         return substrates
 
-    def extract_reaction_products(self, **kwargs):
+    def reaction_products(self, **kwargs):
         """
 
         :return:
@@ -193,7 +193,7 @@ class KeggExtraction(databaseExtraction.DatabaseExtraction):
             print("\t\t\tAdding %s as substrate to %s" % (product, kwargs['reaction_id']))
         return products
 
-    def extract_reaction_stoichiometry(self, **kwargs):
+    def reaction_stoichiometry(self, **kwargs):
         stoichiometry = {}
         equation = kwargs['reaction_kegg_entry']['EQUATION'][0].replace(" ", "")
         for substrate in kwargs['substrates']:

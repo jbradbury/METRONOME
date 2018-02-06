@@ -1,6 +1,7 @@
 import re
 
 from interfaces import sbmlExtraction, databaseExtraction
+from tools import notes2dict
 
 
 class MetaCycSBMLExtraction(sbmlExtraction.SBMLExtraction):
@@ -16,10 +17,10 @@ class MetaCycSBMLExtraction(sbmlExtraction.SBMLExtraction):
         """
         return "MetaCyc"
 
-    def extract_metabolite_compartment(self, **kwargs):
+    def metabolite_compartment(self, **kwargs):
         pass
 
-    def extract_metabolite_inchi(self, **kwargs):
+    def metabolite_inchi(self, **kwargs):
         """
 
         :param kwargs:
@@ -31,7 +32,7 @@ class MetaCycSBMLExtraction(sbmlExtraction.SBMLExtraction):
             inchi = 'NA'
         return inchi
 
-    def extract_metabolite_charge(self, **kwargs):
+    def metabolite_charge(self, **kwargs):
         """
 
         :param kwargs:
@@ -43,10 +44,10 @@ class MetaCycSBMLExtraction(sbmlExtraction.SBMLExtraction):
             charge = 'NA'
         return charge
 
-    def extract_metabolite_smiles(self, **kwargs):
+    def metabolite_smiles(self, **kwargs):
         pass
 
-    def extract_metabolite_formula(self, **kwargs):
+    def metabolite_formula(self, **kwargs):
         """
 
         :param kwargs:
@@ -58,7 +59,7 @@ class MetaCycSBMLExtraction(sbmlExtraction.SBMLExtraction):
             formula = 'NA'
         return formula
 
-    def extract_metabolite_name(self, **kwargs):
+    def metabolite_name(self, **kwargs):
         """
 
         :param kwargs:
@@ -66,7 +67,7 @@ class MetaCycSBMLExtraction(sbmlExtraction.SBMLExtraction):
         """
         return [kwargs['metabolite'].getName()]
 
-    def extract_metabolite_dblinks(self, **kwargs):
+    def metabolite_dblinks(self, **kwargs):
         """
 
         :param kwargs:
@@ -81,21 +82,26 @@ class MetaCycSBMLExtraction(sbmlExtraction.SBMLExtraction):
             del db_links['INCHI']
         return db_links
 
-    def extract_reaction_products(self, **kwargs):
+    def reaction_products(self, **kwargs):
         products = {}
         for product in kwargs['reaction'].getListOfProducts():
+            # metabolite_id = self.get_species_id(product.getSpecies())
             products[product.getSpecies()] = self.extract_metabolite(product.getSpecies())
             print("\t\tAdding %s as product to %s" % (product.getSpecies(), kwargs['reaction'].getId()))
         return products
 
-    def extract_reaction_substrates(self, **kwargs):
+    def reaction_substrates(self, **kwargs):
         substrates = {}
         for substrate in kwargs['reaction'].getListOfReactants():
+            # metabolite_id = self.get_species_id(substrate.getSpecies())
             substrates[substrate.getSpecies()] = self.extract_metabolite(substrate.getSpecies())
             print("\t\tAdding %s as substrate to %s" % (substrate.getSpecies(), kwargs['reaction'].getId()))
         return substrates
 
-    def extract_reaction_dblinks(self, **kwargs):
+    def get_species_id(self, species):
+        return notes2dict(self.sbml_file.getModel().getSpecies(species).getNotesString())['BIOCYC']
+
+    def reaction_dblinks(self, **kwargs):
         """
 
         :param kwargs:
@@ -115,14 +121,14 @@ class MetaCycSBMLExtraction(sbmlExtraction.SBMLExtraction):
         :return:
         """
         if metabolite_id not in self.metabolites:
-            metabolite_notes_dict = metacyc_notes2dict(
+            metabolite_notes_dict = notes2dict(
                 self.sbml_file.getModel().getListOfSpecies().get(metabolite_id).getNotesString())
-            name = self.extract_metabolite_name(
+            name = self.metabolite_name(
                 metabolite=self.sbml_file.getModel().getListOfSpecies().get(metabolite_id))
-            charge = self.extract_metabolite_charge(metabolite_notes_dict=metabolite_notes_dict)
-            formula = self.extract_metabolite_formula(metabolite_notes_dict=metabolite_notes_dict)
-            inchi = self.extract_metabolite_inchi(metabolite_notes_dict=metabolite_notes_dict)
-            db_links = self.extract_metabolite_dblinks(notes_dict=metabolite_notes_dict)
+            charge = self.metabolite_charge(metabolite_notes_dict=metabolite_notes_dict)
+            formula = self.metabolite_formula(metabolite_notes_dict=metabolite_notes_dict)
+            inchi = self.metabolite_inchi(metabolite_notes_dict=metabolite_notes_dict)
+            db_links = self.metabolite_dblinks(notes_dict=metabolite_notes_dict)
 
             metabolite = databaseExtraction.MetaboliteDict(metabolite_id, name, formula, db_links, charge=charge,
                                                            inchi=inchi)
@@ -132,7 +138,7 @@ class MetaCycSBMLExtraction(sbmlExtraction.SBMLExtraction):
         else:
             return self.metabolites[metabolite_id]
 
-    def extract_reactions(self):
+    def get_reactions(self):
         """
 
         :return:
@@ -144,13 +150,13 @@ class MetaCycSBMLExtraction(sbmlExtraction.SBMLExtraction):
                 if len(re.findall('\\b' + ec_number + '\\b', reaction.getNotesString())) > 0:
                     if reaction.getId() not in self.reactions:
                         print('\tExtracting reaction: %s' % reaction.getId())
-                        notes_dict = metacyc_notes2dict(reaction.getNotesString())
-                        name = self.extract_reaction_name(reaction=reaction)
-                        substrates = self.extract_reaction_substrates(reaction=reaction)
-                        products = self.extract_reaction_products(reaction=reaction)
-                        reversible = self.extract_reaction_reversibility(reaction=reaction)
-                        db_links = self.extract_reaction_dblinks(notes_dict=notes_dict)
-                        stoichiometry = self.extract_reaction_stoichiometry(reaction=reaction)
+                        notes_dict = notes2dict(reaction.getNotesString())
+                        name = self.reaction_name(reaction=reaction)
+                        substrates = self.reaction_substrates(reaction=reaction)
+                        products = self.reaction_products(reaction=reaction)
+                        reversible = self.reaction_reversibility(reaction=reaction)
+                        db_links = self.reaction_dblinks(notes_dict=notes_dict)
+                        stoichiometry = self.reaction_stoichiometry(reaction=reaction)
 
                         r = databaseExtraction.ReactionDict(reaction.getId(), name, substrates, products,
                                                             reversible, ec_number, self.enzymes[ec_number],
@@ -165,17 +171,3 @@ class MetaCycSBMLExtraction(sbmlExtraction.SBMLExtraction):
                         r.append_gene(self.enzymes[ec_number])
 
 
-def metacyc_notes2dict(notes_string):
-    """
-
-    :param notes_string:
-    :return:
-    """
-    notes_dict = {}
-    for line in notes_string.split('\n'):
-        if '<p>' in line:
-            line = line.replace('<p>', '')
-            line = line.replace('</p>', '')
-            s = line.split(': ')
-            notes_dict[s[0].strip()] = s[1]
-    return notes_dict

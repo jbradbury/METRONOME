@@ -46,3 +46,19 @@ def load_class(path, instance):
         the_instance = the_class()
         if isinstance(the_instance, instance):
             return the_instance
+
+
+def notes2dict(notes_string):
+    """
+
+    :param notes_string:
+    :return:
+    """
+    notes_dict = {}
+    for line in notes_string.split('\n'):
+        if '<p>' in line:
+            line = line.replace('<p>', '')
+            line = line.replace('</p>', '')
+            s = line.split(': ')
+            notes_dict[s[0].strip()] = s[1]
+    return notes_dict

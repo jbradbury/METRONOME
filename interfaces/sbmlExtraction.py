@@ -14,7 +14,7 @@ class SBMLExtraction(databaseExtraction.DatabaseExtraction):
     def sbml_file(self):
         return self._sbml_file
 
-    def extract_reaction_name(self, **kwargs):
+    def reaction_name(self, **kwargs):
         """
 
         :param kwargs:
@@ -22,7 +22,7 @@ class SBMLExtraction(databaseExtraction.DatabaseExtraction):
         """
         return [kwargs['reaction'].getName()]
 
-    def extract_reaction_reversibility(self, **kwargs):
+    def reaction_reversibility(self, **kwargs):
         """
 
         :param kwargs:
@@ -30,7 +30,7 @@ class SBMLExtraction(databaseExtraction.DatabaseExtraction):
         """
         return kwargs['reaction'].getReversible()
 
-    def extract_reaction_stoichiometry(self, **kwargs):
+    def reaction_stoichiometry(self, **kwargs):
         """
 
         :param kwargs:
@@ -43,41 +43,41 @@ class SBMLExtraction(databaseExtraction.DatabaseExtraction):
             stoichiometry[product.getSpecies()] = product.getStoichiometry()
         return stoichiometry
 
-    def extract_metabolite_formula(self, **kwargs):
+    def metabolite_formula(self, **kwargs):
         pass
 
-    def extract_metabolite_compartment(self, **kwargs):
+    def metabolite_compartment(self, **kwargs):
         pass
 
-    def extract_metabolite_inchi(self, **kwargs):
+    def metabolite_inchi(self, **kwargs):
         pass
 
-    def extract_reaction_substrates(self, **kwargs):
+    def reaction_substrates(self, **kwargs):
         pass
 
-    def extract_reaction_products(self, **kwargs):
+    def reaction_products(self, **kwargs):
         pass
 
-    def extract_reactions(self):
+    def get_reactions(self):
         pass
 
     def database_name(self):
         pass
 
-    def extract_metabolite_name(self, **kwargs):
+    def metabolite_name(self, **kwargs):
         pass
 
-    def extract_metabolite_dblinks(self, **kwargs):
+    def metabolite_dblinks(self, **kwargs):
         pass
 
     def extract_metabolite(self, metabolite_id):
         pass
 
-    def extract_reaction_dblinks(self, **kwargs):
+    def reaction_dblinks(self, **kwargs):
         pass
 
-    def extract_metabolite_charge(self, **kwargs):
+    def metabolite_charge(self, **kwargs):
         pass
 
-    def extract_metabolite_smiles(self, **kwargs):
+    def metabolite_smiles(self, **kwargs):
         pass

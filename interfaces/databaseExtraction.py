@@ -44,7 +44,7 @@ class DatabaseExtraction(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def extract_reactions(self):
+    def get_reactions(self):
         """
         Extract reactions based on provided list of assigned enzymes
         :return:
@@ -60,55 +60,59 @@ class DatabaseExtraction(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def extract_metabolite_dblinks(self, **kwargs):
+    def metabolite_dblinks(self, **kwargs):
         pass
 
     @abc.abstractmethod
-    def extract_metabolite_formula(self, **kwargs):
+    def metabolite_formula(self, **kwargs):
         pass
 
     @abc.abstractmethod
-    def extract_metabolite_name(self, **kwargs):
+    def metabolite_name(self, **kwargs):
         pass
 
     @abc.abstractmethod
-    def extract_metabolite_charge(self, **kwargs):
+    def metabolite_charge(self, **kwargs):
         pass
 
     @abc.abstractmethod
-    def extract_metabolite_inchi(self, **kwargs):
+    def metabolite_inchi(self, **kwargs):
         pass
 
     @abc.abstractmethod
-    def extract_metabolite_smiles(self, **kwargs):
+    def metabolite_inchi_key(self, **kwargs):
         pass
 
     @abc.abstractmethod
-    def extract_metabolite_compartment(self, **kwargs):
+    def metabolite_smiles(self, **kwargs):
         pass
 
     @abc.abstractmethod
-    def extract_reaction_substrates(self, **kwargs):
+    def metabolite_compartment(self, **kwargs):
         pass
 
     @abc.abstractmethod
-    def extract_reaction_products(self, **kwargs):
+    def reaction_substrates(self, **kwargs):
         pass
 
     @abc.abstractmethod
-    def extract_reaction_name(self, **kwargs):
+    def reaction_products(self, **kwargs):
         pass
 
     @abc.abstractmethod
-    def extract_reaction_dblinks(self, **kwargs):
+    def reaction_name(self, **kwargs):
         pass
 
     @abc.abstractmethod
-    def extract_reaction_reversibility(self, **kwargs):
+    def reaction_dblinks(self, **kwargs):
         pass
 
     @abc.abstractmethod
-    def extract_reaction_stoichiometry(selfself, **kwargs):
+    def reaction_reversibility(self, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def reaction_stoichiometry(selfself, **kwargs):
         pass
 
     @staticmethod
@@ -304,7 +308,7 @@ class MetaboliteDict(collections.MutableMapping):
         - Database references
     """
 
-    def __init__(self, metabolite_id, name, formula, db_links, compartment="Intracellular", charge='NA', inchi='NA',
+    def __init__(self, metabolite_id, name, formula, db_links, compartment="Intracellular", charge='NA', inchi='NA', inchikey='',
                  smiles='NA'):
         self.store = dict()
         self.__setitem__('ID', self.metabolite_id(metabolite_id))
@@ -312,6 +316,7 @@ class MetaboliteDict(collections.MutableMapping):
         self.__setitem__('CHARGE', self.charge(charge))
         self.__setitem__('FORMULA', self.formula(formula))
         self.__setitem__('INCHI', self.inchi(inchi))
+        self.__setitem__('INCHIKEY', self.inchikey(inchikey))
         self.__setitem__('SMILES', self.smiles(smiles))
         self.__setitem__('DB_LINKS', self.db_links(db_links))
         self.__setitem__('COMPARTMENT', self.compartment(compartment))
@@ -386,6 +391,17 @@ class MetaboliteDict(collections.MutableMapping):
             return inchi
         except AssertionError:
             print("Metabolite Inchi must be of type str")
+            sys.exit()
+
+    @staticmethod
+    def inchikey(inchikey):
+        """"
+        """
+        try:
+            isinstance(inchikey, str)
+            return inchikey
+        except AssertionError:
+            print("Metabolite Inchi Key must be of type str")
             sys.exit()
 
     @staticmethod
