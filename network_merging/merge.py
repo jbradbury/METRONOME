@@ -4,7 +4,7 @@ import re
 
 import requests
 
-from interfaces import databaseExtraction
+from interfaces import databaseExtraction, enzymeAssignment
 from sbml import sbml
 from tools import notes2dict
 
@@ -21,7 +21,7 @@ class NetworkMerger(databaseExtraction.DatabaseExtraction):
         self.get_reactions()
 
     def database_name(self):
-        pass
+        return "MetaNetX"
 
     def metabolite_charge(self, **kwargs):
         pass
@@ -104,22 +104,49 @@ class NetworkMerger(databaseExtraction.DatabaseExtraction):
 
     def reaction_stoichiometry(self, **kwargs):
         stoichiometry = {}
-        
+        equation = self.metanetx_dict.reactions[kwargs['reaction_id']]['EQUATION'].replace(" ", "")
+        for substrate in kwargs['substrates']:
+            index = equation.index(substrate)
+            if equation[index - 1].isdigit():
+                stoichiometry[substrate] = int(equation[index - 1])
+            else:
+                stoichiometry[substrate] = 1
+
+        for product in kwargs['products']:
+            index = equation.index(product)
+            if equation[index - 1].isdigit():
+                stoichiometry[product] = int(equation[index - 1])
+            else:
+                stoichiometry[product] = 1
         return stoichiometry
 
     def get_reactions(self):
         for reaction_id in self.merged_reactions:
-            name = ['']
+            print("Adding reaction %s" % reaction_id)
+            name = [reaction_id]
             substrates = self.reaction_substrates(reaction_id=reaction_id)
-            products = self.reaction_substrates(reaction_id=reaction_id)
+            products = self.reaction_products(reaction_id=reaction_id)
             reversible = True
             db_links = self.reaction_dblinks(reaction_id=reaction_id)
-            stoichiometry = self.reaction_stoichiometry(substrates=substrates, products=products, reaction_id = reaction_id)
+            stoichiometry = self.reaction_stoichiometry(substrates=substrates, products=products, reaction_id=reaction_id)
 
-            # enzymes/gene ids
+            enzymes = []
+            for ec_number in self.metanetx_dict.reactions[reaction_id]['EC'].split(';'):
+                try:
+                    assert re.match(enzymeAssignment.ec_pattern, ec_number)
+                    enzymes.append(ec_number)
+                except AssertionError:
+                    pass
 
-            r = databaseExtraction.ReactionDict(reaction_id, name, substrates, products, reversible, ec_number, genes, db_links, stoichiometry)
-            print()
+            genes = []
+            for ec_number in enzymes:
+                try:
+                    genes.extend(self.enzymes[ec_number])
+                except KeyError:
+                    pass
+
+            r = databaseExtraction.ReactionDict(reaction_id, name, substrates, products, reversible, enzymes, genes, db_links, stoichiometry)
+            self.reactions[reaction_id] = r
 
     @property
     def path(self):

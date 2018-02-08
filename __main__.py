@@ -22,8 +22,6 @@ def main():
     ea_class = tools.load_class(args.enzymeAssignment, EnzymeAssignment)
     ea_class.assign_enzymes(args.enzymeAssignmentFile)
 
-    merge.NetworkMerger(path=args.outPath, enzymes=ea_class.assigned_enzymes)
-
     # ###### DATABASE EXTRACTION  ### #
     # load database extractors
     database_extractor_classes = tools.load_classes('databaseExtraction', DatabaseExtraction,
@@ -45,7 +43,8 @@ def main():
         sbml.build_sbml(sbml_extractor, args.outPath, args.name + '_' + sbml_extractor.sbml_file.getModel().getId())
 
     # ##### MERGE SBML MODELS ###### #
-    merge.NetworkMerger(args.outPath)
+    merged_network = merge.NetworkMerger(path=args.outPath, enzymes=ea_class.assigned_enzymes)
+    sbml.build_sbml(merged_network, args.outPath, args.name)
 
     print()
 

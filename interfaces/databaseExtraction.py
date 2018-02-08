@@ -151,7 +151,10 @@ class ReactionDict(collections.MutableMapping):
         self.__setitem__('SUBSTRATES', self.metabolites_check(substrates))
         self.__setitem__('PRODUCTS', self.metabolites_check(products))
         self.__setitem__('REVERSIBLE', self.reversible(reversible))
-        self.__setitem__('ENZYME', self.enzymes([ec_number]))
+        if isinstance(ec_number, list):
+            self.__setitem__('ENZYME', self.enzymes(ec_number))
+        else:
+            self.__setitem__('ENZYME', self.enzymes([ec_number]))
         self.__setitem__('GENE_ASSOCIATION', self.gene_ids(gene_ids))
         self.__setitem__('DB_LINKS', self.db_links(db_links))
         self.__setitem__('STOICHIOMETRY', self.stoichiometry(stoichiometry))
@@ -256,8 +259,11 @@ class ReactionDict(collections.MutableMapping):
         :return:
         """
         try:
-            assert bool(gene_ids) and isinstance(gene_ids, list) and all(isinstance(i, str) for i in gene_ids)
-            return gene_ids
+            if len(gene_ids) == 0:
+                return gene_ids
+            else:
+                assert bool(gene_ids) and isinstance(gene_ids, list) and all(isinstance(i, str) for i in gene_ids)
+                return gene_ids
         except AssertionError:
             print('Reaction Gene IDs must be of type list, which can only contain strings')
             sys.exit()
@@ -308,8 +314,8 @@ class MetaboliteDict(collections.MutableMapping):
         - Database references
     """
 
-    def __init__(self, metabolite_id, name, formula, db_links, compartment="Intracellular", charge='NA', inchi='NA', inchikey='',
-                 smiles='NA'):
+    def __init__(self, metabolite_id, name, formula, db_links, compartment="Intracellular", charge='NA', inchi='NA',
+                 inchikey='NA', smiles='NA'):
         self.store = dict()
         self.__setitem__('ID', self.metabolite_id(metabolite_id))
         self.__setitem__('NAME', self.name(name))
