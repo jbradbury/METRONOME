@@ -10,6 +10,9 @@ class MetaCycSBMLExtraction(sbmlExtraction.SBMLExtraction):
     This module extends the databaseExtraction interface
     """
 
+    def metabolite_inchi_key(self, **kwargs):
+        pass
+
     def database_name(self):
         """
 

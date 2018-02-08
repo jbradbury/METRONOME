@@ -78,6 +78,8 @@ def metabolite_notes_string(metabolite):
         notes_string += '\t<p>FORMULA: %s</p>\n' % metabolite.__getitem__('FORMULA')
     if not metabolite.__getitem__('INCHI') == 'NA':
         notes_string += '\t<p>INCHI: %s</p>\n' % metabolite.__getitem__('INCHI')
+    if not metabolite.__getitem__('INCHIKEY') == 'NA':
+        notes_string += '\t<p>INCHI KEY: %s</p>\n' % metabolite.__getitem__('INCHIKEY')
     if not metabolite.__getitem__('SMILES') == 'NA':
         notes_string += '\t<p>SMILES: %s</p>\n' % metabolite.__getitem__('SMILES')
     for db in metabolite.__getitem__('DB_LINKS').keys():

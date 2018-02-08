@@ -17,6 +17,9 @@ class KeggExtraction(databaseExtraction.DatabaseExtraction):
     It works by making use of the KEGG REST services
     """
 
+    def metabolite_inchi_key(self, **kwargs):
+        pass
+
     def database_name(self):
         """
 
