@@ -249,8 +249,9 @@ class ReactionDict(collections.MutableMapping):
             assert bool(enzymes) and isinstance(enzymes, list) and all(isinstance(e, str) for e in enzymes)
             return enzymes
         except AssertionError:
-            print('Reaction Enzymes must be of type list, which can only contain strings')
-            sys.exit()
+            if not len(enzymes) == 0:
+                print('Reaction Enzymes must be of type list, which can only contain strings')
+                sys.exit()
 
     @staticmethod
     def gene_ids(gene_ids):
