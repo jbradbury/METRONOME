@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import csv
+import logging
 import re
 import urllib.request
 
@@ -14,13 +15,16 @@ class OrthoMCL(enzymeAssignment.EnzymeAssignment):
     It works by making use of the OrthoMCL REST services
     """
 
+    def get_name(self):
+        return "OrthoMCL"
+
     def assign_enzymes(self, input_path):
         with open(input_path) as file:
             reader = csv.reader(file, delimiter='\t')
             for row in reader:
                 if not row[1] == 'NO_GROUP':
                     (protein_id, ec_numbers) = (row[0], self.get_ec_numbers_for_orthoMCL_group(row[1]))
-                    print(protein_id, ec_numbers)
+                    logging.info("%s %s" % (protein_id, ec_numbers))
                     if not ec_numbers is None:
                         for ec in ec_numbers:
                             if not ec in self.assigned_enzymes.keys():

@@ -9,13 +9,16 @@ ec_pattern = re.compile('\d+\.\d+\.\d+\.\d+')
 
 
 class EnzymeAssignment(abc.ABC):
+    """
+    Abstract class for enzyme assignment stage
+    Each subclass should provide a mechanism for assigning enzymes for a given input
+    """
     def __init__(self):
         self._assigned_enzymes = AssignedEnzymeDict()
 
     @property
     def assigned_enzymes(self):
         """
-
         :getter: returns an AssignedEnzymeDict with enzyme numbers as the key, and a list of gene ids as the values
         :type: dictionary
 
@@ -23,9 +26,17 @@ class EnzymeAssignment(abc.ABC):
         return self._assigned_enzymes
 
     @abc.abstractmethod
+    def get_name(self):
+        """
+        :return: The name of the Enzyme Assignment
+        """
+        pass
+
+    @abc.abstractmethod
     def assign_enzymes(self):
         """
-        Assign enzymes
+        Assign enzymes abstract method.
+        All subclasses should use this method to do the enzyme assignment
         """
         pass
 

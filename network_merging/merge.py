@@ -145,6 +145,7 @@ class NetworkMerger(databaseExtraction.DatabaseExtraction):
                 except KeyError:
                     pass
 
+            print(enzymes)
             r = databaseExtraction.ReactionDict(reaction_id, name, substrates, products, reversible, enzymes, genes, db_links, stoichiometry)
             self.reactions[reaction_id] = r
 

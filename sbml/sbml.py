@@ -1,5 +1,7 @@
 import libsbml
+import logging
 import time
+import sys
 
 
 def load_sbml(path):
@@ -14,16 +16,21 @@ def load_sbml(path):
 
 
 def build_sbml(database_extractor, path, name):
-    document = libsbml.SBMLDocument(3, 2)
-    model = document.createModel()
-    model.setId(name + "_" + database_extractor.database_name())
-    model.setName(name)
+    try:
+        document = libsbml.SBMLDocument(3, 2)
+        model = document.createModel()
+        model.setId(name + "_" + database_extractor.database_name())
+        model.setName(name)
 
-    compartments(database_extractor, model)
-    species(database_extractor, model)
-    reactions(database_extractor, model)
+        compartments(database_extractor, model)
+        species(database_extractor, model)
+        reactions(database_extractor, model)
 
-    write_sbml(database_extractor, document, name, path)
+        write_sbml(database_extractor, document, name, path)
+        logging.info("Successfully built SMBL model: %s" % path)
+    except:
+        logging.error("FAILED TO BUILD SBML MODEL: %s" % path)
+        sys.exit(1)
 
 
 def write_sbml(database_extractor, document, name, path):
@@ -71,28 +78,40 @@ def compartments(database_extractor, model):
 
 
 def metabolite_notes_string(metabolite):
-    notes_string = '<body xmlns="http://www.w3.org/1999/xhtml">\n'
-    if not metabolite.__getitem__('CHARGE') == 'NA':
-        notes_string += '\t<p>CHARGE: %s</p>\n' % metabolite.__getitem__('CHARGE')
-    if not metabolite.__getitem__('FORMULA') == 'NA':
-        notes_string += '\t<p>FORMULA: %s</p>\n' % metabolite.__getitem__('FORMULA')
-    if not metabolite.__getitem__('INCHI') == 'NA':
-        notes_string += '\t<p>INCHI: %s</p>\n' % metabolite.__getitem__('INCHI')
-    if not metabolite.__getitem__('INCHIKEY') == 'NA':
-        notes_string += '\t<p>INCHI KEY: %s</p>\n' % metabolite.__getitem__('INCHIKEY')
-    if not metabolite.__getitem__('SMILES') == 'NA':
-        notes_string += '\t<p>SMILES: %s</p>\n' % metabolite.__getitem__('SMILES')
-    for db in metabolite.__getitem__('DB_LINKS').keys():
-        notes_string += '\t<p>%s: %s</p>\n' % (db, metabolite.__getitem__('DB_LINKS')[db])
-    notes_string += '</body>'
-    return str(notes_string)
+    try:
+        notes_string = '<body xmlns="http://www.w3.org/1999/xhtml">\n'
+        if not metabolite.__getitem__('CHARGE') == 'NA':
+            notes_string += '\t<p>CHARGE: %s</p>\n' % metabolite.__getitem__('CHARGE')
+        if not metabolite.__getitem__('FORMULA') == 'NA':
+            notes_string += '\t<p>FORMULA: %s</p>\n' % metabolite.__getitem__('FORMULA')
+        if not metabolite.__getitem__('INCHI') == 'NA':
+            notes_string += '\t<p>INCHI: %s</p>\n' % metabolite.__getitem__('INCHI')
+        if not metabolite.__getitem__('INCHIKEY') == 'NA':
+            notes_string += '\t<p>INCHI KEY: %s</p>\n' % metabolite.__getitem__('INCHIKEY')
+        if not metabolite.__getitem__('SMILES') == 'NA':
+            notes_string += '\t<p>SMILES: %s</p>\n' % metabolite.__getitem__('SMILES')
+        for db in metabolite.__getitem__('DB_LINKS').keys():
+            notes_string += '\t<p>%s: %s</p>\n' % (db, metabolite.__getitem__('DB_LINKS')[db])
+        notes_string += '</body>'
+        return str(notes_string)
+    except:
+        print('metabolite notes string fail')
 
 
 def reaction_notes_string(reaction):
-    notes_string = '<body xmlns="http://www.w3.org/1999/xhtml">\n'
-    notes_string += '\t<p>ENZYME: %s</p>\n' % ', '.join(reaction.__getitem__('ENZYME'))
-    notes_string += '\t<p>GENE_ASSOCIATION: %s</p>\n' % ', '.join(reaction.__getitem__('GENE_ASSOCIATION'))
-    for db in reaction.__getitem__('DB_LINKS').keys():
-        notes_string += '\t<p>%s: %s</p>\n' % (db, reaction.__getitem__('DB_LINKS')[db])
-    notes_string += '</body>'
-    return str(notes_string)
+    try:
+        notes_string = '<body xmlns="http://www.w3.org/1999/xhtml">\n'
+        if len(reaction.__getitem__('ENZYME')) > 0:
+            notes_string += '\t<p>ENZYME: %s</p>\n' % ', '.join(reaction.__getitem__('ENZYME'))
+        notes_string += '\t<p>GENE_ASSOCIATION: %s</p>\n' % ', '.join(reaction.__getitem__('GENE_ASSOCIATION'))
+        for db in reaction.__getitem__('DB_LINKS').keys():
+            notes_string += '\t<p>%s: %s</p>\n' % (db, reaction.__getitem__('DB_LINKS')[db])
+        notes_string += '</body>'
+        return str(notes_string)
+    except:
+        notes_string = '<body xmlns="http://www.w3.org/1999/xhtml">\n'
+        notes_string += '<p>ENZYME: </p>\n'
+        for db in reaction.__getitem__('DB_LINKS').keys():
+            notes_string += '\t<p>%s: %s</p>\n' % (db, reaction.__getitem__('DB_LINKS')[db])
+        notes_string += '</body>'
+        return str(notes_string)

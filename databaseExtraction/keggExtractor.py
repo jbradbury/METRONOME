@@ -1,4 +1,5 @@
 import collections
+import logging
 import re
 
 import requests
@@ -7,7 +8,7 @@ from interfaces import databaseExtraction
 
 kegg_url = "http://rest.kegg.jp/get/%s"
 kegg_reaction_pattern = re.compile("^[R]\d{5}")
-kegg_compound_pattern = re.compile("^[C]\d{5}")
+kegg_compound_pattern = re.compile("^[CG]\d{5}")
 
 
 class KeggExtraction(databaseExtraction.DatabaseExtraction):
@@ -71,7 +72,7 @@ class KeggExtraction(databaseExtraction.DatabaseExtraction):
         try:
             name = kwargs['compound_kegg_entry']['NAME']
         except KeyError:
-            name = kwargs['metabolite_id']
+            name = [kwargs['metabolite_id']]
         return name
 
     def reaction_name(self, **kwargs):
@@ -116,7 +117,7 @@ class KeggExtraction(databaseExtraction.DatabaseExtraction):
         :return:
         """
         if metabolite_id not in self.metabolites:
-            print("\t\tCalling KEGG REST service: %s" % metabolite_id)
+            logging.info("\t\tCalling KEGG REST service: %s" % metabolite_id)
             compound_kegg_entry = get_entry(rest2dict(requests.get(kegg_url % metabolite_id)))
 
             name = self.metabolite_name(compound_kegg_entry=compound_kegg_entry, metabolite_id=metabolite_id)
@@ -128,7 +129,7 @@ class KeggExtraction(databaseExtraction.DatabaseExtraction):
 
             return metabolite
         else:
-            print("\t\tCompound %s already extracted from KEGG" % metabolite_id)
+            logging.info("\t\tCompound %s already extracted from KEGG" % metabolite_id)
             return self.metabolites[metabolite_id]
 
     def get_reactions(self):
@@ -136,17 +137,22 @@ class KeggExtraction(databaseExtraction.DatabaseExtraction):
 
         :return:
         """
-        print("Executing KEGG Extractor")
+        logging.info("Executing KEGG Extractor")
         for ec_number in self.enzymes.keys():
-            print("Calling KEGG REST service: %s" % ec_number)
+            logging.info("Calling KEGG REST service: %s" % ec_number)
             ec_kegg_entry = get_entry(rest2dict(requests.get(kegg_url % ec_number)))
             kegg_reaction_ids = []
-            for e in ec_kegg_entry['ALL_REAC']:
-                for r in e.split(' '):
-                    kegg_reaction_ids.extend(re.findall(kegg_reaction_pattern, r))
+            try:
+                for e in ec_kegg_entry['ALL_REAC']:
+                    for r in e.split(' '):
+                        kegg_reaction_ids.extend(re.findall(kegg_reaction_pattern, r))
+            except KeyError:
+                pass
             for r in kegg_reaction_ids:
+                if r == 'R07620':
+                    print()
                 if r not in self.reactions:
-                    print("\tCalling KEGG REST service: %s" % r)
+                    logging.info("\tCalling KEGG REST service: %s" % r)
                     reaction_kegg_entry = get_entry(rest2dict(requests.get(kegg_url % r)))
 
                     name = self.reaction_name(reaction_id=r, reaction_kegg_entry=reaction_kegg_entry)
@@ -163,7 +169,7 @@ class KeggExtraction(databaseExtraction.DatabaseExtraction):
                     self.reactions[r] = reaction
 
                 else:
-                    print("\tReaction %s already extracted from KEGG .... appending E.C. number and Gene IDs" % r)
+                    logging.info("\tReaction %s already extracted from KEGG .... appending E.C. number and Gene IDs" % r)
                     reaction = self.reactions[r]
                     reaction.append_enzyme(ec_number)
                     reaction.append_gene(self.enzymes[ec_number])
@@ -179,7 +185,7 @@ class KeggExtraction(databaseExtraction.DatabaseExtraction):
         substrates = {}
         for substrate in reaction_substrate_ids:
             substrates[substrate] = self.extract_metabolite(substrate)
-            print("\t\t\tAdding %s as substrate to %s" % (substrate, kwargs['reaction_id']))
+            logging.info("\t\t\tAdding %s as substrate to %s" % (substrate, kwargs['reaction_id']))
         return substrates
 
     def reaction_products(self, **kwargs):
@@ -193,7 +199,7 @@ class KeggExtraction(databaseExtraction.DatabaseExtraction):
         products = {}
         for product in reaction_product_ids:
             products[product] = self.extract_metabolite(product)
-            print("\t\t\tAdding %s as substrate to %s" % (product, kwargs['reaction_id']))
+            logging.info("\t\t\tAdding %s as product to %s" % (product, kwargs['reaction_id']))
         return products
 
     def reaction_stoichiometry(self, **kwargs):
