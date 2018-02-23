@@ -96,7 +96,7 @@ class KeggExtraction(databaseExtraction.DatabaseExtraction):
             for l in kwargs['reaction_kegg_entry']['DBLINKS']:
                 db_links[l.split(': ')[0]] = l.split(': ')[1]
         except KeyError:
-            db_links = {}
+            return db_links
         return db_links
 
     def reaction_reversibility(self, **kwargs):
@@ -149,8 +149,6 @@ class KeggExtraction(databaseExtraction.DatabaseExtraction):
             except KeyError:
                 pass
             for r in kegg_reaction_ids:
-                if r == 'R07620':
-                    print()
                 if r not in self.reactions:
                     logging.info("\tCalling KEGG REST service: %s" % r)
                     reaction_kegg_entry = get_entry(rest2dict(requests.get(kegg_url % r)))
@@ -162,10 +160,13 @@ class KeggExtraction(databaseExtraction.DatabaseExtraction):
                     substrates = self.reaction_substrates(reaction_kegg_entry=reaction_kegg_entry,
                                                           reaction_id=r)
                     products = self.reaction_products(reaction_kegg_entry=reaction_kegg_entry, reaction_id=r)
-                    stoichiometry = self.reaction_stoichiometry(substrates=substrates, products=products, reaction_kegg_entry=reaction_kegg_entry)
+                    stoichiometry = self.reaction_stoichiometry(substrates=substrates, products=products,
+                                                                reaction_kegg_entry=reaction_kegg_entry)
+                    pathways = self.reaction_pathways(reaction_kegg_entry=reaction_kegg_entry)
 
                     reaction = databaseExtraction.ReactionDict(r, name, substrates, products, reversible, ec_number,
-                                                               self.enzymes[ec_number], db_links, stoichiometry)
+                                                               self.enzymes[ec_number], db_links, stoichiometry,
+                                                               pathways)
                     self.reactions[r] = reaction
 
                 else:
@@ -226,6 +227,12 @@ class KeggExtraction(databaseExtraction.DatabaseExtraction):
                 stoichiometry[product] = 1
 
         return stoichiometry
+
+    def reaction_pathways(self, **kwargs):
+        try:
+            return kwargs['reaction_kegg_entry']['PATHWAY']
+        except KeyError:
+            return []
 
 
 def rest2dict(request):

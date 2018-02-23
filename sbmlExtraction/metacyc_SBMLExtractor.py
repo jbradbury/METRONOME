@@ -115,7 +115,15 @@ class MetaCycSBMLExtraction(sbmlExtraction.SBMLExtraction):
             del db_links['EC Number']
         if 'GENE_ASSOCIATION' in db_links.keys():
             del db_links['GENE_ASSOCIATION']
+        if 'SUBSYSTEM' in db_links.keys():
+            del db_links['SUBSYSTEM']
         return db_links
+
+    def reaction_pathways(self, **kwargs):
+        try:
+            return kwargs['notes_dict']['SUBSYSTEM'].split(', ')
+        except KeyError:
+            return []
 
     def extract_metabolite(self, metabolite_id):
         """
@@ -151,26 +159,30 @@ class MetaCycSBMLExtraction(sbmlExtraction.SBMLExtraction):
             print("Extracting reactions linked to %s" % ec_number)
             for reaction in self.sbml_file.getModel().getListOfReactions():
                 if len(re.findall('\\b' + ec_number + '\\b', reaction.getNotesString())) > 0:
-                    if reaction.getId() not in self.reactions:
-                        print('\tExtracting reaction: %s' % reaction.getId())
-                        notes_dict = notes2dict(reaction.getNotesString())
-                        name = self.reaction_name(reaction=reaction)
-                        substrates = self.reaction_substrates(reaction=reaction)
-                        products = self.reaction_products(reaction=reaction)
-                        reversible = self.reaction_reversibility(reaction=reaction)
-                        db_links = self.reaction_dblinks(notes_dict=notes_dict)
-                        stoichiometry = self.reaction_stoichiometry(reaction=reaction)
+                    for ec in re.findall('\\b' + ec_number + '\\b', reaction.getNotesString()):
+                        if ec == ec_number:
+                            if reaction.getId() not in self.reactions:
+                                print('\tExtracting reaction: %s' % reaction.getId())
+                                notes_dict = notes2dict(reaction.getNotesString())
+                                name = self.reaction_name(reaction=reaction)
+                                substrates = self.reaction_substrates(reaction=reaction)
+                                products = self.reaction_products(reaction=reaction)
+                                reversible = self.reaction_reversibility(reaction=reaction)
+                                stoichiometry = self.reaction_stoichiometry(reaction=reaction)
+                                pathways = self.reaction_pathways(notes_dict=notes_dict)
 
-                        r = databaseExtraction.ReactionDict(reaction.getId(), name, substrates, products,
-                                                            reversible, ec_number, self.enzymes[ec_number],
-                                                            db_links, stoichiometry)
-                        self.reactions[reaction.getId()] = r
-                    else:
-                        print(
-                            '\tReaction %s is already extracted .... appending E.C. number and Gene IDs' %
-                            reaction.getId())
-                        r = self.reactions[reaction.getId()]
-                        r.append_enzyme(ec_number)
-                        r.append_gene(self.enzymes[ec_number])
+                                db_links = self.reaction_dblinks(notes_dict=notes_dict)
+
+                                r = databaseExtraction.ReactionDict(reaction.getId(), name, substrates, products,
+                                                                    reversible, ec_number, self.enzymes[ec_number],
+                                                                    db_links, stoichiometry, pathways)
+                                self.reactions[reaction.getId()] = r
+                            else:
+                                print(
+                                    '\tReaction %s is already extracted .... appending E.C. number and Gene IDs' %
+                                    reaction.getId())
+                                r = self.reactions[reaction.getId()]
+                                r.append_enzyme(ec_number)
+                                r.append_gene(self.enzymes[ec_number])
 
 

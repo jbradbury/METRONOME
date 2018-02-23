@@ -120,6 +120,9 @@ class NetworkMerger(databaseExtraction.DatabaseExtraction):
                 stoichiometry[product] = 1
         return stoichiometry
 
+    def reaction_pathways(self, **kwargs):
+        pass
+
     def get_reactions(self):
         for reaction_id in self.merged_reactions:
             print("Adding reaction %s" % reaction_id)
@@ -146,7 +149,8 @@ class NetworkMerger(databaseExtraction.DatabaseExtraction):
                     pass
 
             print(enzymes)
-            r = databaseExtraction.ReactionDict(reaction_id, name, substrates, products, reversible, enzymes, genes, db_links, stoichiometry)
+            r = databaseExtraction.ReactionDict(reaction_id, name, substrates, products, reversible, enzymes, genes,
+                                                db_links, stoichiometry, [])
             self.reactions[reaction_id] = r
 
     @property
@@ -173,7 +177,10 @@ class NetworkMerger(databaseExtraction.DatabaseExtraction):
             for reaction in sbml_file.getModel().getListOfReactions():
                 reaction_notes = notes2dict(reaction.getNotesString())
                 del reaction_notes['ENZYME']
-                del reaction_notes['GENE_ASSOCIATION']
+                try:
+                    del reaction_notes['GENE_ASSOCIATION']
+                except:
+                    print()
                 added = False
                 for key in reaction_notes.keys():
                     if reaction_notes[key] in self.metanetx_dict.reactions_xref:

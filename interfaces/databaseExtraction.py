@@ -112,7 +112,11 @@ class DatabaseExtraction(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def reaction_stoichiometry(selfself, **kwargs):
+    def reaction_stoichiometry(self, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def reaction_pathways(self, **kwargs):
         pass
 
     @staticmethod
@@ -144,7 +148,7 @@ class ReactionDict(collections.MutableMapping):
     """
 
     def __init__(self, reaction_id, name, substrates, products, reversible, ec_number, gene_ids, db_links,
-                 stoichiometry):
+                 stoichiometry, pathways):
         self.store = dict()
         self.__setitem__('ID', self.reaction_id(reaction_id))
         self.__setitem__('NAME', self.name(name))
@@ -158,6 +162,7 @@ class ReactionDict(collections.MutableMapping):
         self.__setitem__('GENE_ASSOCIATION', self.gene_ids(gene_ids))
         self.__setitem__('DB_LINKS', self.db_links(db_links))
         self.__setitem__('STOICHIOMETRY', self.stoichiometry(stoichiometry))
+        self.__setitem__('SUBSYSTEM', self.pathways(pathways))
 
     def __getitem__(self, key):
         return self.store[key]
@@ -299,6 +304,21 @@ class ReactionDict(collections.MutableMapping):
         except AssertionError:
             print('Reaction stoichiometry should be a dict, with string keys and int values')
             sys.exit()
+
+    @staticmethod
+    def pathways(pathways):
+        """
+
+        :param pathways:
+        :return:
+        """
+        try:
+            assert bool(pathways) and isinstance(pathways, list) and all(isinstance(p, str) for p in pathways)
+            return pathways
+        except AssertionError:
+            if not len(pathways) == 0:
+                print('Reaction Pathways must be of type list, which can only contain strings')
+                sys.exit()
 
 
 class MetaboliteDict(collections.MutableMapping):
