@@ -17,6 +17,7 @@ class NetworkMerger(databaseExtraction.DatabaseExtraction):
         super(NetworkMerger, self).__init__(**kwargs)
         self._path = kwargs['path']
         self._metanetx_dict = MetaNetXDict()
+        self._pathways = {}
         self._merged_reactions = self.merge_reactions()
         self.get_reactions()
 
@@ -149,8 +150,11 @@ class NetworkMerger(databaseExtraction.DatabaseExtraction):
                     pass
 
             print(enzymes)
+
+            pathways = self.pathways[reaction_id]
+
             r = databaseExtraction.ReactionDict(reaction_id, name, substrates, products, reversible, enzymes, genes,
-                                                db_links, stoichiometry, [])
+                                                db_links, stoichiometry, pathways)
             self.reactions[reaction_id] = r
 
     @property
@@ -164,6 +168,10 @@ class NetworkMerger(databaseExtraction.DatabaseExtraction):
     @property
     def merged_reactions(self):
         return self._merged_reactions
+
+    @property
+    def pathways(self):
+        return self._pathways
 
     def merge_reactions(self):
         mnxrids = []
@@ -184,13 +192,29 @@ class NetworkMerger(databaseExtraction.DatabaseExtraction):
                 added = False
                 for key in reaction_notes.keys():
                     if reaction_notes[key] in self.metanetx_dict.reactions_xref:
-                        _mnxrids.append(self.metanetx_dict.reactions_xref[reaction_notes[key]]['MNXR'])
-                        added = True
-                        break
+                        mnxid = self.metanetx_dict.reactions_xref[reaction_notes[key]]['MNXR']
+                        try:
+                            if mnxid not in self.pathways:
+                                self.pathways[mnxid] = reaction_notes['SUBSYSTEM'].split(' || ')
+                            else:
+                                self.pathways[mnxid].extend(reaction_notes['SUBSYSTEM'].split(' || '))
+                            _mnxrids.append(mnxid)
+                            added = True
+                            break
+                        except KeyError:
+                            pass
                 try:
                     if reaction.getId() in self.metanetx_dict.reactions_xref:
-                        _mnxrids.append(self.metanetx_dict.reactions_xref[reaction.getId()]['MNXR'])
-                        added = True
+                        mnxid = self.metanetx_dict.reactions_xref[reaction_notes[key]]['MNXR']
+                        try:
+                            if mnxid not in self.pathways:
+                                self.pathways[mnxid] = reaction_notes['SUBSYSTEM'].split(' || ')
+                            else:
+                                self.pathways[mnxid].extend(reaction_notes['SUBSYSTEM'].split(' || '))
+                            _mnxrids.append(self.metanetx_dict.reactions_xref[reaction.getId()]['MNXR'])
+                            added = True
+                        except KeyError:
+                            pass
                 except KeyError:
                     pass
 
